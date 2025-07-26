@@ -3,6 +3,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.firefox import GeckoDriverManager
+from tqdm import tqdm
 import time
 import os
 import requests
@@ -12,8 +13,6 @@ def download_video_from_superporn_firefox(url, save_dir="downloads"):
 
     options = Options()
     options.headless = True
-
-    # ✅ FIXED LINE HERE
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=options)
 
@@ -39,12 +38,22 @@ def download_video_from_superporn_firefox(url, save_dir="downloads"):
         os.makedirs(save_dir, exist_ok=True)
         save_path = os.path.join(save_dir, filename)
 
-        print(f"\n⬇️ Downloading video to: {save_path}")
-        with requests.get(video_src, stream=True) as r:
-            with open(save_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 1024):
-                    if chunk:
-                        f.write(chunk)
+        print(f"\n⬇️ Downloading to: {save_path}")
+        response = requests.get(video_src, stream=True)
+        total = int(response.headers.get('content-length', 0))
+
+        with open(save_path, "wb") as f, tqdm(
+            desc="📥 Progress",
+            total=total,
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024,
+        ) as bar:
+            for chunk in response.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+                    bar.update(len(chunk))
+
         print("✅ Download complete!")
 
     except Exception as e:
