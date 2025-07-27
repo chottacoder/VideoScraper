@@ -1,8 +1,3 @@
-Here's a complete `README.md` file for your **VideoScraper** project, covering setup, features, and usage:
-
----
-
-````markdown
 # 🎥 VideoScraper
 
 A GUI-based Python app to extract and download videos from JavaScript-heavy sites like SuperPorn — **without using Selenium**.
@@ -29,7 +24,7 @@ Install dependencies:
 
 ```bash
 pip install PyQt5 PyQtWebEngine requests tqdm
-````
+```
 
 ---
 
