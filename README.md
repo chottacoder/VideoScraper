@@ -24,6 +24,7 @@ Install dependencies:
 
 ```bash
 pip install PyQt5 PyQtWebEngine requests tqdm
+pip install selenium webdriver-manager tqdm requests
 ```
 
 ---
