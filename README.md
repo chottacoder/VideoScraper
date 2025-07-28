@@ -51,7 +51,7 @@ python your_script.py
 * ✅ Embedded browser (Chromium via QtWebEngine)
 * ✅ Auto video URL detection
 * ✅ Live download progress bar
-* ✅ Simple 300x300 GUI window
+* ✅ Simple 400x400 GUI window
 
 ---
 
