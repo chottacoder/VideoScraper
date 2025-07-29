@@ -158,7 +158,7 @@ def download_from_superporn(url, save_dir="downloads"):
 if __name__ == "__main__":
     print("🎬 Video Downloader")
     try:
-        url = input("🔗 Enter video URL: ").strip()
+        url = input("🔗 Enter video URL: \n").strip()
         checkUrl = url.split("/")[2]  # Extract domain from URL
 
         # print(url.split("/")[2])  # Debugging line to check URL structure
