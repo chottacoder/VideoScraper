@@ -159,9 +159,7 @@ if __name__ == "__main__":
     print("🎬 Video Downloader")
     try:
         url = input("🔗 Enter video URL: ").strip()
-        checkUrl = url.split("/")[2]  # Extract domain from URL
-
-        # print(url.split("/")[2])  # Debugging line to check URL structure
+        checkUrl = url.split("/")[2]  # Extract domain from URL    
         
         if checkUrl == "hqporner.com" or checkUrl == "www.hqporner.com":
             download_from_hqporner(url)
