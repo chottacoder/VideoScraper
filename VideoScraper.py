@@ -1,3 +1,6 @@
+import os
+import time
+import requests
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
@@ -6,15 +9,41 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.firefox import GeckoDriverManager
 from tqdm import tqdm
-import time
-import os
-import requests
+
+UBLOCK_XPI_PATH = os.path.abspath("ublock_origin.xpi")  # Make sure this exists
 
 def setup_driver():
     options = Options()
     options.headless = True
-    service = Service(GeckoDriverManager().install())
-    return webdriver.Firefox(service=service, options=options)
+
+    # Set ad-block and popup preferences directly
+    options.set_preference("permissions.default.image", 2)  # Block images (optional)
+    options.set_preference("dom.popup_maximum", 0)
+    options.set_preference("privacy.popups.showBrowserMessage", False)
+    options.set_preference("dom.disable_open_during_load", True)
+    options.set_preference("dom.popup_allowed_events", "")
+
+    # Create the driver
+    driver = webdriver.Firefox(
+        service=Service(GeckoDriverManager().install()),
+        options=options
+    )
+
+    # Add uBlock Origin if available
+    if os.path.exists(UBLOCK_XPI_PATH):
+        driver.install_addon(UBLOCK_XPI_PATH, temporary=True)
+
+    return driver
+
+def remove_ads(driver):
+    ad_selectors = ["iframe", "popup", "ads", "adframe", "ad-container"]
+    for selector in ad_selectors:
+        try:
+            ads = driver.find_elements(By.CSS_SELECTOR, f"[id*='{selector}'],[class*='{selector}']")
+            for ad in ads:
+                driver.execute_script("arguments[0].remove();", ad)
+        except:
+            continue
 
 def download_file(video_url, save_path):
     print(f"\n⬇️ Downloading to: {save_path}")
@@ -40,10 +69,13 @@ def download_from_hqporner(url, save_dir="downloads"):
 
     try:
         driver.get(url)
+        remove_ads(driver)
+
         iframe = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, "iframe"))
         )
         driver.switch_to.frame(iframe)
+        remove_ads(driver)
 
         sources = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, "source"))
@@ -91,6 +123,7 @@ def download_from_incestflix(url, save_dir="downloads"):
     print(f"\n🔄 Launching Firefox for: {url}")
     driver = setup_driver()
     driver.get(url)
+    remove_ads(driver)
     time.sleep(5)
 
     try:
@@ -122,6 +155,7 @@ def download_from_superporn(url, save_dir="downloads"):
     print(f"\n🔄 Launching Firefox for: {url}")
     driver = setup_driver()
     driver.get(url)
+    remove_ads(driver)
     time.sleep(5)
 
     try:
@@ -159,8 +193,8 @@ if __name__ == "__main__":
     print("🎬 Video Downloader")
     try:
         url = input("🔗 Enter video URL: \n").strip()
-        checkUrl = url.split("/")[2]  # Extract domain from URL    
-        
+        checkUrl = url.split("/")[2]  # Extract domain from URL
+
         if checkUrl == "hqporner.com" or checkUrl == "www.hqporner.com":
             download_from_hqporner(url)
         elif checkUrl == "www.incestflix.com" or checkUrl == "incestflix.com":
@@ -168,7 +202,7 @@ if __name__ == "__main__":
         elif checkUrl == "www.superporn.com" or checkUrl == "superporn.com":
             download_from_superporn(url)
         else:
-            print("i will try to download from other sites, please wait...")
+            print("⚠️ Unrecognized site. Attempting with IncestFlix handler...")
             download_from_incestflix(url)
     except ValueError:
-        print("Sorry cant download from this site, please try another one. 😢")
+        print("❌ Invalid URL or site not supported.")
