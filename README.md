@@ -28,6 +28,12 @@ pip install selenium webdriver-manager tqdm requests
 ```
 
 ---
+🔧 Steps to Add uBlock Origin to Selenium Firefox
+
+    Download uBlock Origin .xpi (Firefox extension format):
+        Go to: https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi
+---
+  
 
 ## 🚀 Usage
 
