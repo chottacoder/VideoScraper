@@ -2,38 +2,64 @@ import os
 import time
 import requests
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.firefox import GeckoDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
 
-UBLOCK_XPI_PATH = os.path.abspath("ublock_origin.xpi")  # Make sure this exists
+UBLOCK_XPI_PATH = os.path.abspath("ublock_origin.xpi")
 
 def setup_driver():
-    options = Options()
-    options.headless = True
+    try:
+        print("🦊 Trying Firefox...")
+        options = FirefoxOptions()
+        options.headless = True
+        options.set_preference("permissions.default.image", 2)
+        options.set_preference("dom.popup_maximum", 0)
+        options.set_preference("privacy.popups.showBrowserMessage", False)
+        options.set_preference("dom.disable_open_during_load", True)
+        options.set_preference("dom.popup_allowed_events", "")
 
-    # Set ad-block and popup preferences directly
-    options.set_preference("permissions.default.image", 2)  # Block images (optional)
-    options.set_preference("dom.popup_maximum", 0)
-    options.set_preference("privacy.popups.showBrowserMessage", False)
-    options.set_preference("dom.disable_open_during_load", True)
-    options.set_preference("dom.popup_allowed_events", "")
+        driver = webdriver.Firefox(
+            service=FirefoxService(GeckoDriverManager().install()),
+            options=options
+        )
 
-    # Create the driver
-    driver = webdriver.Firefox(
-        service=Service(GeckoDriverManager().install()),
-        options=options
-    )
+        if os.path.exists(UBLOCK_XPI_PATH):
+            driver.install_addon(UBLOCK_XPI_PATH, temporary=True)
 
-    # Add uBlock Origin if available
-    if os.path.exists(UBLOCK_XPI_PATH):
-        driver.install_addon(UBLOCK_XPI_PATH, temporary=True)
+        print("✅ Firefox started.")
+        return driver
 
-    return driver
+    except Exception as firefox_error:
+        print(f"⚠️ Firefox failed: {firefox_error}")
+        print("🧪 Trying Chrome instead...")
+
+        try:
+            chrome_options = ChromeOptions()
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--disable-popup-blocking")
+            chrome_options.add_argument("--disable-extensions")
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+
+            driver = webdriver.Chrome(
+                service=ChromeService(ChromeDriverManager().install()),
+                options=chrome_options
+            )
+
+            print("✅ Chrome started.")
+            return driver
+
+        except Exception as chrome_error:
+            print(f"❌ Chrome also failed: {chrome_error}")
+            raise RuntimeError("No supported browser found. Please install Firefox or Chrome.")
 
 def remove_ads(driver):
     ad_selectors = ["iframe", "popup", "ads", "adframe", "ad-container"]
@@ -64,7 +90,7 @@ def download_file(video_url, save_path):
     print("✅ Download complete!")
 
 def download_from_hqporner(url, save_dir="downloads"):
-    print(f"\n🔄 Launching Firefox for: {url}")
+    print(f"\n🔄 Launching browser for: {url}")
     driver = setup_driver()
 
     try:
@@ -120,7 +146,7 @@ def download_from_hqporner(url, save_dir="downloads"):
         driver.quit()
 
 def download_from_incestflix(url, save_dir="downloads"):
-    print(f"\n🔄 Launching Firefox for: {url}")
+    print(f"\n🔄 Launching browser for: {url}")
     driver = setup_driver()
     driver.get(url)
     remove_ads(driver)
@@ -152,7 +178,7 @@ def download_from_incestflix(url, save_dir="downloads"):
         driver.quit()
 
 def download_from_superporn(url, save_dir="downloads"):
-    print(f"\n🔄 Launching Firefox for: {url}")
+    print(f"\n🔄 Launching browser for: {url}")
     driver = setup_driver()
     driver.get(url)
     remove_ads(driver)
@@ -188,21 +214,21 @@ def download_from_superporn(url, save_dir="downloads"):
         driver.quit()
 
 # ========== MAIN MENU ==========
-
 if __name__ == "__main__":
     print("🎬 Video Downloader")
     try:
         url = input("🔗 Enter video URL: \n").strip()
-        checkUrl = url.split("/")[2]  # Extract domain from URL
+        checkUrl = url.split("/")[2]
 
         if checkUrl == "hqporner.com" or checkUrl == "www.hqporner.com":
             download_from_hqporner(url)
-        elif checkUrl == "www.incestflix.com" or checkUrl == "incestflix.com":
+        elif checkUrl == "incestflix.com" or checkUrl == "www.incestflix.com":
             download_from_incestflix(url)
-        elif checkUrl == "www.superporn.com" or checkUrl == "superporn.com":
+        elif checkUrl == "superporn.com" or checkUrl == "www.superporn.com":
             download_from_superporn(url)
         else:
             print("⚠️ Unrecognized site. Attempting with IncestFlix handler...")
             download_from_incestflix(url)
+
     except ValueError:
         print("❌ Invalid URL or site not supported.")
