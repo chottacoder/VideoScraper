@@ -1,89 +1,162 @@
-# 🎥 VideoScraper
 
-A GUI-based Python app to extract and download videos from JavaScript-heavy sites like SuperPorn — **without using Selenium**.
+# 🎬 Video Downloader (Selenium + TQDM)
+
+A headless browser-based video downloader for adult streaming sites like **HQPorner**, **IncestFlix**, and **SuperPorn**.
+
+- ✅ Automatically detects video quality
+- ✅ Ad-removal using DOM selectors
+- ✅ Works with **Firefox** or **Chrome**
+- ✅ Optional **adblocker support** via `ublock_origin.xpi`
+- ✅ Download progress shown using `tqdm`
 
 ---
 
-## 💡 How It Works
+## 🚀 Features
 
-1. Launches a PyQt5 GUI with an embedded browser
-2. Loads the target SuperPorn video page (JavaScript-enabled)
-3. Waits for the `<video id="superporn_player_html5_api">` element
-4. Extracts the real video stream URL (`src`)
-5. Downloads the video using `requests`
-6. Displays a live progress bar during download
-7. Saves the video as `downloads/video-title.mp4`
+- Headless automation via Selenium
+- Tries Firefox first, falls back to Chrome
+- Automatically extracts video URL
+- Supports multiple video sources
+- Downloads in selected quality
+- Gracefully removes ads/popups
+
+---
+
+## ⚙️ Requirements
+
+- Python 3.7+
+- pip
+- Firefox or Chrome browser installed
 
 ---
 
 ## 📦 Installation
 
-Make sure Python 3.7+ is installed.
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/yourname/video-downloader.git
+   cd video-downloader ```
 
-Install dependencies:
+2. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   Or manually:
+
+   ```bash
+   pip install selenium requests tqdm webdriver-manager
+   ```
+
+3. *(Optional but recommended)*: Download the **uBlock Origin** `.xpi` extension and place it in the same directory as the script:
+
+   * [Download uBlock Origin for Firefox (.xpi)](https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi)
+   * Rename it to `ublock_origin.xpi`
+
+---
+
+## 🧠 How It Works
+
+1. You provide a video URL from a supported site.
+2. The script opens it in headless Firefox or Chrome.
+3. It removes ads/popups.
+4. Extracts available video sources and asks you to pick a quality.
+5. Downloads the selected stream using `requests` + `tqdm`.
+
+---
+
+## 🖥️ Usage
 
 ```bash
-pip install PyQt5 PyQtWebEngine requests tqdm
-pip install selenium webdriver-manager tqdm requests
+python video_downloader.py
 ```
 
----
-🔧 Steps to Add uBlock Origin to Selenium Firefox
+You’ll be prompted to enter a video URL, e.g.
 
-    Download uBlock Origin .xpi (Firefox extension format):
-        Go to: https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/addon-607454-latest.xpi
----
-  
-
-## 🚀 Usage
-
-1. Run the script:
-
-```bash
-python your_script.py
+```
+🔗 Enter video URL:
+https://www.hqporner.com/hdporn/some-video-title.html
 ```
 
-2. Paste the video URL in the input field.
-3. Click "Load & Extract Video".
-4. Wait for the video to load and start downloading.
-5. The video will be saved in the `downloads/` folder with a clean filename.
+Then you’ll see available qualities:
+
+🎥 Available Qualities:
+1. 360p
+2. 720p
+3. 1080p
+👉 Choose quality (e.g., 360p, 720p, 1080p): 720p
+
+The video will be saved to `downloads/` folder.
 
 ---
 
-## 🖥️ Features
+## 🛡️ Adblock Extension (Optional)
 
-* ✅ No Selenium required
-* ✅ Supports JavaScript-heavy pages
-* ✅ Embedded browser (Chromium via QtWebEngine)
-* ✅ Auto video URL detection
-* ✅ Live download progress bar
-* ✅ Simple 400x400 GUI window
+* If `ublock_origin.xpi` is available, it will be installed temporarily into Firefox to block dynamic ads/popups.
+* If the file is missing, the script continues **without failing**.
+
+**Tip:** This can significantly improve speed and stability.
 
 ---
 
-## 📁 Output
+## 🧼 Known Issues
 
-All downloaded videos are saved to:
+* Some videos may have obfuscated or delayed source loading; script retries with basic fallbacks.
+* File names are slugified from the URL. Avoid characters like `:`, `?`, etc.
+* `iframe` detection timeout can occur if network is slow.
+* `uBlock Origin` addon may fail to install silently if Firefox is not configured properly.
+
+---
+
+## 🌐 Supported Sites
+
+| Site           | Handler Function           |
+| -------------- | -------------------------- |
+| hqporner.com   | `download_from_hqporner`   |
+| incestflix.com | `download_from_incestflix` |
+| superporn.com  | `download_from_superporn`  |
+
+*More sites can be added easily!*
+
+---
+
+## 📁 Folder Structure
 
 ```
-downloads/your_video.mp4
+video-downloader/
+│
+├── video_downloader.py
+├── downloads/          # Output folder
+├── README.md
+└── requirements.txt    # (optional)
 ```
 
 ---
 
-## 🛠️ Optional Packaging
+## 🙋 FAQ
 
-Convert to `.exe` using PyInstaller:
+**Q: Firefox fails, what to do?**</br>
+Make sure you have Firefox installed and working. If not, Chrome will be used as a fallback.
 
-```bash
-pip install pyinstaller
-pyinstaller --noconsole --onefile your_script.py
-```
+**Q: Download fails or is partial?**</br>
+Try re-running. For large files, ensure your internet connection is stable.
+
+**Q: Can I run this on a server?**</br>
+Yes, as long as you install Firefox or Chrome and run in headless mode.
+
+---
+
+## ✅ TODO
+
+* [ ] Add CLI argument support (`argparse`)
+* [ ] GUI with PyQt5
+* [ ] Support more adult streaming sites
+* [ ] Parallel downloads
 
 ---
 
 ## ⚠️ Disclaimer
 
-This tool is for educational and personal use only.
-**Always respect website terms of service and content copyright.**
+This tool is for **educational purposes only**. Please use responsibly and only on content you are legally permitted to download.
 
